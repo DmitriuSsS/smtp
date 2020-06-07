@@ -40,22 +40,22 @@ class Client:
         self._password = config['CLIENT']['password']
 
     def send_letter(self, message: Message):
-        msg = MIMEMultipart()
-        msg['Subject'] = message.title
-        msg['From'] = self.login
-        msg.attach(MIMEText(message.text))
+        letter = MIMEMultipart()
+        letter['Subject'] = message.title
+        letter['From'] = self.login
+        letter.attach(MIMEText(message.text))
 
         for attachment in message.attachments:
             with open(os.path.join(message.config_folder, attachment), 'rb') as file_attachment:
                 _attachment = MIMEApplication(file_attachment.read())
                 _attachment.add_header('Content-Disposition', 'attachment', filename=attachment)
-                msg.attach(_attachment)
+                letter.attach(_attachment)
 
         server = smtplib.SMTP('smtp.mail.ru:587')
         server.ehlo()
         server.starttls()
         server.login(self.login, self._password)
-        server.sendmail(self.login, message.recipients, msg.as_string())
+        server.sendmail(self.login, message.recipients, letter.as_string())
 
 
 if __name__ == '__main__':
